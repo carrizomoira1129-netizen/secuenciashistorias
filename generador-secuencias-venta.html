@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secuencia · Generador de Stories que Venden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #161412;
+    --paper: #f4f0e8;
+    --paper-2: #ebe5d8;
+    --accent: #e8503a;
+    --accent-2: #1a4d3a;
+    --gold: #c89b3c;
+    --line: rgba(22,20,18,0.14);
+    --line-strong: rgba(22,20,18,0.3);
+    --display: 'Fraunces', Georgia, serif;
+    --mono: 'Space Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--display);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(22,20,18,0.025) 38px, rgba(22,20,18,0.025) 39px);
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  /* ---- HEADER ---- */
+  header { padding: 28px 0 0; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--ink); padding-bottom: 14px; }
+  .brand { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 9px; }
+  .brand .dot { width: 11px; height: 11px; background: var(--accent); border-radius: 50%; display: inline-block; }
+  .tag-mono { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink); opacity: 0.6; }
+
+  /* ---- HERO ---- */
+  .hero { padding: 64px 0 40px; position: relative; }
+  .hero h1 {
+    font-size: clamp(44px, 8.5vw, 104px);
+    line-height: 0.92; font-weight: 600; letter-spacing: -0.035em;
+    max-width: 14ch;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero .sub {
+    margin-top: 26px; max-width: 52ch; font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.55; opacity: 0.82;
+  }
+  .hero .arrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    margin-top: 34px; display: inline-flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--ink); padding: 13px 22px; border-radius: 100px;
+    cursor: pointer; background: var(--ink); color: var(--paper); transition: transform .15s ease, background .2s;
+  }
+  .hero .arrow:hover { transform: translateY(-2px); }
+  .hero-mark {
+    position: absolute; top: 30px; right: -10px; font-family: var(--mono);
+    font-size: 11px; opacity: 0.4; writing-mode: vertical-rl; letter-spacing: 0.2em;
+  }
+
+  /* ---- DARA strip ---- */
+  .dara { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1.5px solid var(--ink); border-radius: 16px; overflow: hidden; margin: 10px 0 70px; background: var(--paper-2); }
+  .dara-cell { padding: 22px 20px; border-right: 1px solid var(--line); position: relative; }
+  .dara-cell:last-child { border-right: none; }
+  .dara-cell .l { font-size: 46px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+  .dara-cell:nth-child(1) .l { color: var(--accent); }
+  .dara-cell:nth-child(2) .l { color: var(--accent-2); }
+  .dara-cell:nth-child(3) .l { color: var(--gold); }
+  .dara-cell:nth-child(4) .l { color: var(--accent); }
+  .dara-cell .n { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; margin: 8px 0 5px; }
+  .dara-cell .d { font-size: 13px; opacity: 0.7; line-height: 1.4; }
+
+  /* ---- FORM ---- */
+  .form-section { margin-bottom: 70px; }
+  .section-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px; }
+  .section-head .num { font-family: var(--mono); font-size: 13px; opacity: 0.5; }
+  .section-head h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 600; letter-spacing: -0.02em; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; }
+  .field { display: flex; flex-direction: column; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 9px; opacity: 0.75; }
+  .field input, .field textarea, .field select {
+    font-family: var(--display); font-size: 17px; color: var(--ink);
+    background: transparent; border: none; border-bottom: 1.5px solid var(--ink);
+    padding: 9px 2px; outline: none; transition: border-color .2s; resize: none;
+  }
+  .field input::placeholder, .field textarea::placeholder { color: rgba(22,20,18,0.32); }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+  .field textarea { min-height: 54px; line-height: 1.4; }
+  .field select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23161412' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 4px center; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 4px; }
+  .chip {
+    font-family: var(--mono); font-size: 12px; padding: 7px 14px; border: 1.3px solid var(--line-strong);
+    border-radius: 100px; cursor: pointer; transition: all .15s; user-select: none; background: transparent;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .generate-btn {
+    margin-top: 40px; width: 100%; font-family: var(--display); font-size: 22px; font-weight: 600;
+    background: var(--accent); color: var(--paper); border: none; padding: 24px; border-radius: 16px;
+    cursor: pointer; letter-spacing: -0.01em; transition: transform .15s, background .2s; position: relative; overflow: hidden;
+  }
+  .generate-btn:hover:not(:disabled) { transform: translateY(-2px); background: #d4452f; }
+  .generate-btn:disabled { opacity: 0.55; cursor: wait; }
+  .generate-btn .sub { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.8; margin-top: 6px; font-weight: 400; }
+
+  /* ---- OUTPUT ---- */
+  #output { margin-bottom: 90px; scroll-margin-top: 30px; }
+  .out-intro { border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); padding: 22px 0; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .out-intro h3 { font-size: clamp(24px, 4vw, 36px); font-weight: 600; letter-spacing: -0.02em; }
+  .out-intro .biz { font-family: var(--mono); font-size: 12px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .seq { border: 1.5px solid var(--ink); border-radius: 18px; overflow: hidden; margin-bottom: 28px; background: var(--paper-2); }
+  .seq-top { padding: 20px 26px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--ink); flex-wrap: wrap; gap: 10px; background: var(--ink); color: var(--paper); }
+  .seq-top .title { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .seq-top .meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+  .seq-steps { padding: 8px 26px 22px; }
+  .step { display: flex; gap: 18px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .step:last-child { border-bottom: none; }
+  .step-badge { flex-shrink: 0; width: 46px; }
+  .step-badge .letter { font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+  .step-badge .stage { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; margin-top: 4px; }
+  .step.d .letter { color: var(--accent); }
+  .step.a1 .letter { color: var(--accent-2); }
+  .step.r .letter { color: var(--gold); }
+  .step.a2 .letter { color: var(--accent); }
+  .step-content { flex: 1; }
+  .step-content .hook { font-size: 19px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .step-content .hook::before { content: "“"; }
+  .step-content .hook::after { content: "”"; }
+  .step-content .visual { font-size: 14px; opacity: 0.78; line-height: 1.5; }
+  .step-content .visual b { font-weight: 600; }
+  .step-content .cta { display: inline-block; margin-top: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em; border: 1.3px solid var(--line-strong); padding: 6px 13px; border-radius: 100px; }
+
+  .copybar { display: flex; gap: 10px; margin-top: 14px; }
+  .copybar button { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; background: transparent; border: 1.3px solid var(--line-strong); padding: 8px 14px; border-radius: 100px; cursor: pointer; transition: all .15s; }
+  .copybar button:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  /* loading */
+  .loading { text-align: center; padding: 60px 0; }
+  .loading .pulse { font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.6; }
+  .loading .bar { width: 200px; height: 3px; background: var(--line); margin: 20px auto 0; border-radius: 2px; overflow: hidden; }
+  .loading .bar i { display: block; height: 100%; width: 40%; background: var(--accent); border-radius: 2px; animation: slide 1.1s ease-in-out infinite; }
+  @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+
+  .err { border: 1.5px solid var(--accent); border-radius: 14px; padding: 20px 24px; color: var(--accent); font-size: 15px; }
+
+  /* footer */
+  footer { border-top: 1.5px solid var(--ink); padding: 30px 0 50px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+  footer .f-mono { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.55; }
+
+  @media (max-width: 720px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .dara { grid-template-columns: 1fr 1fr; }
+    .dara-cell:nth-child(2) { border-right: none; }
+    .dara-cell:nth-child(1), .dara-cell:nth-child(2) { border-bottom: 1px solid var(--line); }
+    .hero-mark { display: none; }
+    .step { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span>Secuencia</div>
+      <div class="tag-mono">Stories que venden · cualquier nicho</div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-mark">SISTEMA D.A.R.A.</div>
+    <h1>Contá tu negocio. Te devuelvo las <em>historias</em> que venden.</h1>
+    <p class="sub">Una IA entrenada en psicología de conversión, copywriting de respuesta directa y el sistema D.A.R.A. Decile qué vendés y a quién — te arma secuencias de stories listas para publicar y vender, sí o sí.</p>
+    <button class="arrow" onclick="document.getElementById('form').scrollIntoView()">Empezar ahora ↓</button>
+  </section>
+
+  <div class="dara">
+    <div class="dara-cell"><div class="l">D</div><div class="n">Deseo</div><div class="d">El resultado que tu cliente quiere ver</div></div>
+    <div class="dara-cell"><div class="l">A</div><div class="n">Argumento</div><div class="d">Por qué vos lo resolvés mejor</div></div>
+    <div class="dara-cell"><div class="l">R</div><div class="n">Respaldo</div><div class="d">La prueba de que funciona</div></div>
+    <div class="dara-cell"><div class="l">A</div><div class="n">Acción</div><div class="d">Qué hacer ahora, sin fricción</div></div>
+  </div>
+
+  <section class="form-section" id="form">
+    <div class="section-head">
+      <span class="num">01 /</span>
+      <h2>Tu negocio en 5 datos</h2>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>¿De qué es tu negocio?</label>
+        <input id="biz" type="text" placeholder="Ej: estudio de belleza, panadería, software, coaching...">
+      </div>
+      <div class="field">
+        <label>¿Dónde estás? (opcional)</label>
+        <input id="place" type="text" placeholder="Ej: La Plata, online, todo el país...">
+      </div>
+      <div class="field full">
+        <label>¿Qué vendés exactamente?</label>
+        <textarea id="product" placeholder="Ej: microblading, laminado de cejas y coloración / curso de inglés online / tortas por encargo..."></textarea>
+      </div>
+      <div class="field full">
+        <label>¿Quién es tu cliente ideal?</label>
+        <textarea id="client" placeholder="Ej: mujeres 25-40 que no tienen tiempo de maquillarse y quieren verse arregladas sin esfuerzo..."></textarea>
+      </div>
+      <div class="field full">
+        <label>¿Cuál es el principal dolor o deseo de ese cliente?</label>
+        <textarea id="pain" placeholder="Ej: pierden tiempo cada mañana / no encuentran un lugar de confianza / quieren resultados que duren..."></textarea>
+      </div>
+    </div>
+
+    <div class="field full" style="margin-top: 26px;">
+      <label>Tono de la marca</label>
+      <div class="chips" id="tone-chips">
+        <button class="chip on" data-tone="Cercano y directo">Cercano y directo</button>
+        <button class="chip" data-tone="Aspiracional y premium">Aspiracional / premium</button>
+        <button class="chip" data-tone="Educativo y experto">Educativo / experto</button>
+        <button class="chip" data-tone="Urgente y disruptivo">Urgente / disruptivo</button>
+        <button class="chip" data-tone="Empático y humano">Empático / humano</button>
+        <button class="chip" data-tone="Divertido y fresco">Divertido / fresco</button>
+      </div>
+    </div>
+
+    <div class="field full" style="margin-top: 26px;">
+      <label>¿Cuántas secuencias querés generar?</label>
+      <div class="chips" id="count-chips">
+        <button class="chip" data-count="1">1 secuencia</button>
+        <button class="chip on" data-count="3">3 secuencias</button>
+        <button class="chip" data-count="5">5 secuencias</button>
+      </div>
+    </div>
+
+    <button class="generate-btn" id="genBtn" onclick="generate()">
+      Generar mis secuencias de venta
+      <span class="sub">La IA las arma con el sistema D.A.R.A.</span>
+    </button>
+  </section>
+
+  <section id="output"></section>
+
+  <footer>
+    <div class="f-mono">Secuencia · generador de stories</div>
+    <div class="f-mono">Sistema D.A.R.A. + psicología de conversión</div>
+  </footer>
+
+</div>
+
+<script>
+  // chip selectors
+  document.querySelectorAll('#tone-chips .chip').forEach(c => {
+    c.onclick = () => { document.querySelectorAll('#tone-chips .chip').forEach(x => x.classList.remove('on')); c.classList.add('on'); };
+  });
+  document.querySelectorAll('#count-chips .chip').forEach(c => {
+    c.onclick = () => { document.querySelectorAll('#count-chips .chip').forEach(x => x.classList.remove('on')); c.classList.add('on'); };
+  });
+
+  const stageNames = ['Deseo', 'Argumento', 'Respaldo', 'Acción'];
+  const stageClasses = ['d', 'a1', 'r', 'a2'];
+  const stageLetters = ['D', 'A', 'R', 'A'];
+
+  async function generate() {
+    const biz = document.getElementById('biz').value.trim();
+    const product = document.getElementById('product').value.trim();
+    const client = document.getElementById('client').value.trim();
+    const pain = document.getElementById('pain').value.trim();
+    const place = document.getElementById('place').value.trim();
+    const tone = document.querySelector('#tone-chips .chip.on').dataset.tone;
+    const count = parseInt(document.querySelector('#count-chips .chip.on').dataset.count);
+
+    const out = document.getElementById('output');
+
+    if (!biz || !product || !client) {
+      out.innerHTML = '<div class="err">Completá al menos: de qué es tu negocio, qué vendés y quién es tu cliente.</div>';
+      out.scrollIntoView();
+      return;
+    }
+
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    out.innerHTML = '<div class="loading"><div class="pulse">Armando tus secuencias de venta…</div><div class="bar"><i></i></div></div>';
+    out.scrollIntoView();
+
+    const sys = `Sos un sistema experto en la intersección de diseño gráfico de alto nivel, marketing digital basado en evidencia y psicología del comportamiento del consumidor. Tu objetivo es crear secuencias de Instagram/TikTok Stories que detengan el scroll, generen emoción y CONVIERTAN en ventas.
+
+Aplicás SIEMPRE estos principios reales:
+- Efecto de superioridad de imagen: el visual va antes que el texto.
+- Brecha de información (Loewenstein): crear tensión entre lo que el cliente sabe y lo que podría saber.
+- Prueba social y autoridad: cifras específicas y testimonios reales generan confianza.
+- Copywriting PAS (Problema-Agitación-Solución) y palabras gatillo.
+- Ventana de atención de 0.3 segundos: el hook de la primera story es todo.
+
+Trabajás con el sistema D.A.R.A. de 4 stories:
+- D (Deseo): mostrá el resultado deseado en los primeros 2 segundos. Hook de deseo o de dolor.
+- A (Argumento): por qué este negocio lo resuelve mejor. Proceso, tiempo, diferencial.
+- R (Respaldo): prueba real — testimonio, antes/después, dato concreto.
+- A (Acción): cierre con urgencia genuina + CTA directo sin fricción.
+
+REGLA DE ORO: nunca pongas el CTA de venta antes de la story 4. Vendé recién al final de cada secuencia.
+
+Devolvé SIEMPRE únicamente un objeto JSON válido, sin markdown, sin explicaciones, sin backticks. Estructura exacta:
+{"sequences":[{"title":"nombre corto y atractivo de la secuencia","focus":"el producto/servicio o ángulo que vende","steps":[{"hook":"el texto exacto que va en pantalla en la story","visual":"instrucción concreta de qué mostrar/grabar/foto","cta":"micro-cta o transición; en la story 4 el CTA de venta real"}]}]}
+Cada secuencia tiene EXACTAMENTE 4 steps en orden D, A, R, A. Los hooks deben ser específicos al negocio, en español rioplatense natural, nada genérico.`;
+
+    const usr = `Generá ${count} secuencia(s) de stories de venta DISTINTAS entre sí (cada una con un ángulo o producto diferente) para este negocio:
+
+- Negocio: ${biz}
+${place ? '- Ubicación: ' + place : ''}
+- Qué vende: ${product}
+- Cliente ideal: ${client}
+${pain ? '- Dolor/deseo principal del cliente: ' + pain : ''}
+- Tono de la marca: ${tone}
+
+Hacé que los hooks sean imposibles de saltear y que cada secuencia termine vendiendo de verdad. Solo JSON.`;
+
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 3000,
+          system: sys,
+          messages: [{ role: "user", content: usr }]
+        })
+      });
+      const data = await res.json();
+      let text = data.content.filter(i => i.type === "text").map(i => i.text).join("");
+      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(text);
+      render(parsed.sequences, { biz, place });
+    } catch (e) {
+      console.error(e);
+      out.innerHTML = '<div class="err">Hubo un problema generando las secuencias. Revisá tu conexión y probá de nuevo. (' + (e.message || 'error') + ')</div>';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render(sequences, ctx) {
+    const out = document.getElementById('output');
+    let html = `<div class="out-intro"><h3>Tus secuencias, listas para publicar</h3><div class="biz">${esc(ctx.biz)}${ctx.place ? ' · ' + esc(ctx.place) : ''}</div></div>`;
+
+    sequences.forEach((seq, si) => {
+      html += `<div class="seq"><div class="seq-top"><div class="title">${esc(seq.title)}</div><div class="meta">${esc(seq.focus || 'Secuencia ' + (si+1))}</div></div><div class="seq-steps">`;
+      const stepLines = [];
+      seq.steps.slice(0,4).forEach((st, i) => {
+        html += `<div class="step ${stageClasses[i]}">
+          <div class="step-badge"><div class="letter">${stageLetters[i]}</div><div class="stage">${stageNames[i]}</div></div>
+          <div class="step-content">
+            <div class="hook">${esc(st.hook)}</div>
+            <div class="visual"><b>En pantalla:</b> ${esc(st.visual)}</div>
+            ${st.cta ? `<span class="cta">${i === 3 ? '↙ ' : '→ '}${esc(st.cta)}</span>` : ''}
+          </div>
+        </div>`;
+        stepLines.push(`STORY ${i+1} (${stageNames[i]})\n"${st.hook}"\nEn pantalla: ${st.visual}${st.cta ? '\nCTA: ' + st.cta : ''}`);
+      });
+      const copyText = `${seq.title}\n${'='.repeat(seq.title.length)}\n\n` + stepLines.join('\n\n');
+      html += `<div class="copybar"><button onclick='copySeq(this, ${JSON.stringify(copyText)})'>Copiar secuencia</button></div>`;
+      html += `</div></div>`;
+    });
+
+    html += `<div style="text-align:center; margin-top:14px;"><button class="copybar-btn" onclick="document.getElementById('form').scrollIntoView()" style="font-family:var(--mono); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; background:transparent; border:1.3px solid var(--ink); padding:13px 24px; border-radius:100px; cursor:pointer;">Generar otra tanda ↑</button></div>`;
+
+    out.innerHTML = html;
+    out.scrollIntoView();
+  }
+
+  function copySeq(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '¡Copiado!';
+      setTimeout(() => btn.textContent = orig, 1600);
+    });
+  }
+</script>
+</body>
+</html>
